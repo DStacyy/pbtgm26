@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //kaping siji, class player nganggo encapsulation (private field #skor)
+        class Player {
+            #skor;
+            constructor(nama, skorAwal = 0){
+                this.nama = nama;
+                this.#skor = skorAwal;
+            }
+            tambahSkor(poin) {
+                if (poin > 0){
+                    this.#skor +=poin;
+                }
+            }
+            getSkor(){
+                return this.#skor;
+            }
+            //datanya ditimpa ke format objek sederhana rek
+            toJSON() {
+                return {
+                    nama: this.nama,
+                    skor: this.#skor
+                };
+            }
+        }
+        //kaping loro class Storage Manager buat kelola LocalStorage/DB lokal ya rek
+        class StorageManager{
+            static KEY_STORAGE = "GAME_HIGHSCORE_DATA";
+
+            //simpan utowo update skor player
+            static simpanSkor (playerObj)
+            {
+                const listSkor = StorageManager.amvilSemuaSkor();
+                listSkor.push(playerObj.toJSON());
+            //Ngurutno skor dari tertinggi ke terendah
+            listSkor.sort((a,b) => b.skor - a.skor);
+
+            //simpen nang LocalStorage dalam format JSON String
+            localStorage.setItem(StorageManager.KEY_STORAGE, JSON.stringify(listSkor));
+            console.log('[SUKSES] Data for ${playerObj.nama} berhasil disimpan!');
+            }
+
+            //Ambil data skor dari LocalStorage
+            static ambilSemuaSkor(){
+                const dataString = localStorage.getItem(StorageManager.KEY_STORAGE);
+                return dataString ? JSON.parse(dataString) : [];
+            }
+
+            //Ambil Top N Skor (maksudnya top tertentu kali ya)
+            static ambilTopSKor(limit = 5){
+                const semuaSkor = StorageManager.ambilSemuaSkor();
+                return semuaSkor.slice(0, limit);
+            }
+
+            //Hapus kabeh data (reset)
+            static bersihkanData(){
+                localStorage.removeItem(StorageManager.KEY_STORAGE);
+            }
+        }
+
+        // DEMO PENGGUNAAN
+        console.log("==== DEMO PROGRAM JAVASCRIPT OOP & STORAGE ====");
+
+        //inisialisasi objek player
+        const p1 = new Player("Budi", 80);
+        p1.tambahSkor(15); //si budi jadi punya 95 skor
+
+        const p2 = new Player ("Siti", 120);
+        const p3 = new Player ("Andi", 70);
+
+        //simpan data skor ke local storage coyy
+        StorageManager.simpanSkor(p1);
+        StorageManager.simpanSkor(p2);
+        StorageManager.simpanSkor(p3);
+
+        // nampilin si high score euy, kodingan aing kumaha aing
+        console.log("\n--- PAPAN SKOR TERTINGGI (TOP 3) ---");
+        const topSkor = StorageManager.ambilTopSKor(3);
+        topSkor.forEach((item ,index) => {
+            console.log('${index + 1}. ${item.nama} - ${item.skor} Poin');
+        });
+
+
+
+
+        </script>
+</body>
+</html>

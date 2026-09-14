@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --biru-gelap: #0f1923;
+            --biru-panel: #1c2a35;
+            --merah-terang: #ff4655;
+            --putih: #ece8e1;
+            --abu: #7a8a95;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--biru-gelap);
+            background-image:
+                linear-gradient(180deg, rgba(255,70,85,0.08), transparent 40%),
+                repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 12px);
+            color: var(--putih);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 16px;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-size: 2rem;
+            margin-bottom: 4px;
+            border-left: 6px solid var(--merah-terang);
+            padding-left: 14px;
+        }
+
+        .subjudul {
+            color: var(--abu);
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+
+        .panel {
+            background-color: var(--biru-panel);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-top: 3px solid var(--merah-terang);
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 24px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--merah-terang);
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--abu);
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--biru-gelap);
+            border: 1px solid var(--abu);
+            color: var(--putih);
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--merah-terang);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 12px 16px;
+            background-color: var(--merah-terang);
+            color: var(--biru-gelap);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            transition: opacity 0.15s ease;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        button.sekunder {
+            background-color: transparent;
+            color: var(--putih);
+            border: 1px solid var(--abu);
+        }
+
+        button.bahaya {
+            background-color: transparent;
+            color: var(--merah-terang);
+            border: 1px solid var(--merah-terang);
+        }
+
+        #papanSkor {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0 0;
+        }
+
+        #papanSkor li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background-color: var(--biru-gelap);
+            border-left: 4px solid var(--merah-terang);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        #papanSkor li:nth-child(1) {
+            border-left-color: gold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Papan Skor</h1>
+    <p class="subjudul">Demo OOP &amp; LocalStorage</p>
+
+    <div class="panel">
+        <h2>Input Pemain</h2>
+        <label for="inputNama">Nama</label>
+        <input type="text" id="inputNama" placeholder="Masukkan nama pemain">
+        <label for="inputSkor">Skor</label>
+        <input type="number" id="inputSkor" placeholder="Masukkan skor">
+        <button onclick="tambahPemain()">Tambah Skor</button>
+    </div>
+
+    <div class="panel">
+        <h2>Kontrol Data</h2>
+        <button class="sekunder" onclick="tampilkanHighScore()">Tampilkan High Score</button>
+        <button class="sekunder" onclick="tampilkanSemuaPemain()">Tampilkan Semua Pemain</button>
+        <button class="bahaya" onclick="resetData()">Reset Semua Data</button>
+    </div>
+
+    <div class="panel">
+        <h2>Papan Skor Sementara</h2>
+        <ul id="papanSkor"></ul>
+    </div>
+
+    <script>
+        //kaping siji, class player nganggo encapsulation (private field #skor)
+        class Player {
+            #skor;
+            constructor(nama, skorAwal = 0){
+                this.nama = nama;
+                this.#skor = skorAwal;
+            }
+            tambahSkor(poin) {
+                if (poin > 0){
+                    this.#skor +=poin;
+                }
+            }
+            getSkor(){
+                return this.#skor;
+            }
+            //datanya ditimpa ke format objek sederhana rek
+            toJSON() {
+                return {
+                    nama: this.nama,
+                    skor: this.#skor
+                };
+            }
+        }
+        //kaping loro class Storage Manager buat kelola LocalStorage/DB lokal ya rek
+        class StorageManager{
+            static KEY_STORAGE = "GAME_HIGHSCORE_DATA";
+
+            //simpan utowo update skor player
+            static simpanSkor (playerObj)
+            {
+                const listSkor = StorageManager.ambilSemuaSkor();
+                listSkor.push(playerObj.toJSON());
+            //Ngurutno skor dari tertinggi ke terendah
+            listSkor.sort((a,b) => b.skor - a.skor);
+
+            //simpen nang LocalStorage dalam format JSON String
+            localStorage.setItem(StorageManager.KEY_STORAGE, JSON.stringify(listSkor));
+            console.log(`[SUKSES] Data for ${playerObj.nama} berhasil disimpan!`);
+            }
+
+            //Ambil data skor dari LocalStorage
+            static ambilSemuaSkor(){
+                const dataString = localStorage.getItem(StorageManager.KEY_STORAGE);
+                return dataString ? JSON.parse(dataString) : [];
+            }
+
+            //Ambil Top N Skor (maksudnya top tertentu kali ya)
+            static ambilTopSKor(limit = 5){
+                const semuaSkor = StorageManager.ambilSemuaSkor();
+                return semuaSkor.slice(0, limit);
+            }
+
+            //Hapus kabeh data (reset)
+            static bersihkanData(){
+                localStorage.removeItem(StorageManager.KEY_STORAGE);
+            }
+        }
+
+        // ==== FUNGSI-FUNGSI YANG DIPANGGIL DARI TOMBOL ====
+
+        //dipanggil dari tombol "Tambah Skor"
+        function tambahPemain() {
+            const inputNama = document.getElementById('inputNama');
+            const inputSkor = document.getElementById('inputSkor');
+
+            const nama = inputNama.value.trim();
+            const skor = parseInt(inputSkor.value, 10);
+
+            //validasi sederhana, jangan sampe nama kosong utowo skor bukan angka
+            if (!nama || isNaN(skor)) {
+                console.warn('[GAGAL] Nama tidak boleh kosong dan skor harus berupa angka.');
+                return;
+            }
+
+            const pemainBaru = new Player(nama, 0);
+            pemainBaru.tambahSkor(skor);
+
+            StorageManager.simpanSkor(pemainBaru);
+
+            //bersihkan input biar siap diisi lagi
+            inputNama.value = '';
+            inputSkor.value = '';
+
+            renderPapanSkor();
+        }
+
+        //dipanggil dari tombol "Tampilkan High Score"
+        function tampilkanHighScore() {
+            console.log("\n--- PAPAN SKOR TERTINGGI (TOP 3) ---");
+            const topSkor = StorageManager.ambilTopSKor(3);
+            topSkor.forEach((item, index) => {
+                console.log(`${index + 1}. ${item.nama} - ${item.skor} Poin`);
+            });
+
+            renderPapanSkor(topSkor);
+        }
+
+        //dipanggil dari tombol "Tampilkan Semua Pemain"
+        function tampilkanSemuaPemain() {
+            console.log("\n--- SEMUA DATA PEMAIN ---");
+            const semuaSkor = StorageManager.ambilSemuaSkor();
+            semuaSkor.forEach((item, index) => {
+                console.log(`${index + 1}. ${item.nama} - ${item.skor} Poin`);
+            });
+
+            renderPapanSkor(semuaSkor);
+        }
+
+        //dipanggil dari tombol "Reset Semua Data"
+        function resetData() {
+            StorageManager.bersihkanData();
+            console.log("[INFO] Semua data skor sudah dihapus.");
+            renderPapanSkor();
+        }
+
+        //nampilin papan skor sementara di halaman (bukan cuma di console)
+        function renderPapanSkor(daftarSkor) {
+            const elPapanSkor = document.getElementById('papanSkor');
+            const data = daftarSkor || StorageManager.ambilSemuaSkor();
+
+            elPapanSkor.innerHTML = '';
+
+            if (data.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'Belum ada data skor.';
+                elPapanSkor.appendChild(li);
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${item.nama}</span><span>${item.skor} Poin</span>`;
+                elPapanSkor.appendChild(li);
+            });
+        }
+
+        // ==== INISIALISASI SAAT HALAMAN DIBUKA ====
+        console.log("==== DEMO PROGRAM JAVASCRIPT OOP & STORAGE ====");
+        renderPapanSkor();
+        </script>
+</body>
+</html>
