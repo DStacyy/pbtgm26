@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 2: Pemrograman Grafis 2D Canvas</title>
+    <style>
+        body {
+            background-color: #1e1e24;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction:  column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 4px solid #2e75b6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0,5);
+        }
+    </style>
+</head>
+<body>
+    <h2> Pemrograman Grafis 2D - Canvas API </h2>
+    <canvas id="MyCanvas" width="600" height="350"></canvas>
+
+    <script>
+        const canvas = documents.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+
+        class SpritePlayer{
+            constructor(x, y, width, height, warna) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.warna = warna;
+            }
+
+            draw(context){
+                context.fillStyle = this.warna;
+                context.fillRect(this.x, this.y, this.width, this.height);
+
+                context.strokeStyle = "#000000";
+                context.lineWidth = 3;
+                context.strokeRect(this.x, this.y, this.width, this.height);
+
+                context.fillStyle = "#FFFFFF";
+                context.fillRect(this.x + 25, this.y + 8, 8, 12);
+            }
+        }
+
+        class Coin{
+            constructor(x, y, radius) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            }
+            draw(context) {
+                context.beginPath();
+                context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                context.fillStyle = "#FBD000"; // Kuning
+                context.fill();
+                context.lineWidth = 2;
+                context.strokeStyle = "#000000";
+                context.stroke();
+                context.closePath();
+            }
+        }
+        function drawEnvironment() {
+            ctx.fillStyle = "#e52521"; // Merah Bata
+            ctx.fillRect(0, 300, canvas.width, 50);
+
+            ctx.fillStyle = "#00a800"; // Hijau Pipa/Rumput
+            ctx.fillRect(0, 300, canvas.width, 10);
+
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 16px Arial";
+            ctx.fillText("MARIO x 02 | SCORE: 000500", 20, 30);
+        }
+        
+            drawEnvironment();
+            const player1 = new SpritePlayer(100, 240, 40, 60, "#e52521");
+            const coin1 = new Coin(300, 220, 15);
+            const coin2 = new Coin(350, 220, 15);
+            player1.draw(ctx);
+            coin1.draw(ctx);
+            coin2.draw(ctx);
+    </script>  
+</body>
+</html>
